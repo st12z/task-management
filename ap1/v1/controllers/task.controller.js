@@ -1,9 +1,14 @@
 const Task = require("../models/task.model");
 const paginationHelper = require("../../../helper/pagination");
 const searchHelper = require("../../../helper/search");
+const { listUsers } = require("./user.controller");
 // [GET] /api/v1/tasks
 module.exports.index = async (req, res) => {
   const find = {
+    $or:[
+      {createdBy:req.user.id},
+      {listUsers:req.user.id}
+    ],
     deleted: false,
   };
   //sort
@@ -124,6 +129,8 @@ module.exports.changeMulti = async (req, res) => {
 // [POST] /api/v1/tasks/create
 module.exports.create = async (req, res) => {
   try {
+    req.body.createdBy=req.user.id;
+
     const task = new Task(req.body);
     const data = await task.save();
     res.json({
